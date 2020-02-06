@@ -5,12 +5,12 @@
 1. What is tha Nextcloud
 2. Diagram
 3. Nextcloud construcyion
-    3-1. Install of MariaDB (DB server side)
-    3-2. Prepare for DB
-    3-3. Install of Nextcloud, httpd and PHP and DB (Nextcloud server side)
-    3-4. Prepare for DB
-    3-5. Prepare of Nextcloud server
-    3-6. Setup of Nextcloud
+    3-1. Install of MariaDB (DB server side)  
+    3-2. Prepare for DB (DB server side)  
+    3-3. Install of Nextcloud, httpd and PHP and DB (Nextcloud server side)  
+    3-4. Prepare for DB (Nextcloud server side)  
+    3-5. Prepare of Nextcloud server (Nextcloud server side)  
+    3-6. Setup of Nextcloud  
 4. Trouble management
 
 ## 1.What is tha Nextcloud
