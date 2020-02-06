@@ -161,7 +161,7 @@ MariaDB [(none)]> CREATE USER 'nextcloud'@'Nextclooud server ip address' IDENTIF
 Gives access to the database.
 
 ```terminal
-MariaDB [(none)]> GRANT ALL PRIVILEGES ON *.* TO 'nextcloud'@'Nextclooud server ip address' with grant option;
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'Nextclooud server ip address' with grant option;
 MariaDB [(none)]> FLUSH PRIVILEGES;
 ```
 
@@ -277,21 +277,6 @@ Change the owner information so that you can read and write in the entire Nextcl
 
 ```terminal
 # chown -R apache:apache /var/www/html/nextcloud
-# chown -R apache:apache /mnt/nextcloud/data
-```
-
-```ini
-<?php
-$CONFIG = array (
-
-~省略~
-
-),
-'datadirectory' => '/mnt/nextcloud/data',
-
-~省略~
-
-);
 ```
 
 Start httpd.
