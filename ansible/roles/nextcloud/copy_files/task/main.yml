@@ -1,0 +1,8 @@
+- name: nextcloud folder copy to /var/www/html
+  copy:
+    src: nextcloud/
+    dest: /var/www/html
+    owner: apache
+    group: apache
+    remote_src: yes
+    directory_mode: yes

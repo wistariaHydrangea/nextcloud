@@ -1,0 +1,24 @@
+---
+- name: Install Nextcloud
+  hosts: nextcloud
+  vars:
+    ansible_become: yes
+    ansible_become_method: sudo
+  roles:
+    - change_hostname
+    - install_packages
+    - wget_packages
+    - firewall_services
+    - copy_files
+    - mkdir_directories
+
+  # tasks:
+  #   - name: upgrade all packages
+  #     yum:
+  #       name: '*'
+  #       state: latest
+
+  #   - name: Remove PHP
+  #     yum:
+  #       name: php-*
+  #       state: absent

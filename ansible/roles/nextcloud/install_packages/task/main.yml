@@ -1,0 +1,69 @@
+- name: Install yum tool
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - yum-utils
+      - http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+      - wget
+      - unzip
+      - bash-completion
+      - bzip2
+      - mlocate
+      - policycoreutils-python
+
+- name: Install httpd
+  yum:
+    name: httpd
+    state: latest
+
+- name: start and enable service
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Install PHP
+  yum:
+    name: "{{ packages }}"
+    state: persent
+    enablerepo: remi,remi-php72
+  vars:
+    packages:
+      - --enablerepo=remi
+      - remi-php72
+      - php
+      - php-gd
+      - php-json
+      - php-mysql
+      - php-curl
+      - php-mbstring
+      - php-intl
+      - php-mcrypt
+      - php-imagick
+      - php-xml
+      - php-zip
+      - php-process
+      - php-apcu
+
+- name: Add repository
+  yum_repository:
+    name: MariaDB
+    description: MariaDB repo
+    baseurl: http://yum.mariadb.org/10.4/centos7-amd64
+    gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+    gpgcheck: true
+
+- name: Install mariadb
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - MariaDB-server
+      - MariaDB-client
+
+- name: start mariadb service
+  service:
+    name: httpd
+    state: started
+    enabled: yes

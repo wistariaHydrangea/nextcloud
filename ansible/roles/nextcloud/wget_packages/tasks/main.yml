@@ -1,0 +1,5 @@
+- name: wget nextcloud zip
+  unarchive:
+    src: https://download.nextcloud.com/server/releases/nextcloud-17.0.2.zip
+    dest: /root
+    remote_src: yes
