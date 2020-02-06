@@ -4,7 +4,7 @@
 
 1. What is tha Nextcloud
 2. Diagram
-3. Nextcloud construcyion
+3. Nextcloud construcyion  
     3-1. Install of MariaDB (DB server side)  
     3-2. Prepare for DB (DB server side)  
     3-3. Install of Nextcloud, httpd and PHP and DB (Nextcloud server side)  
@@ -176,13 +176,7 @@ Install the necessary packages for building Nextcloud.
 # yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 # yum -y install --enablerepo=remi,remi-php72 php php-gd php-json php-mysql php-curl php-mbstring
 # yum -y install --enablerepo=remi,remi-php72 php-intl php-mcrypt php-imagick php-xml php-zip php-process php-apcu
-# yum -y install vim unzip wget httpd bash-completion policycoreutils-python mlocate bzip2 \
-php php-cli php-mysqlnd php-zip php-devel php-gd php-mcrypt php-mbstring php-curl php-xml php-pear php-bcmath php-json php-pdo php-pecl-apcu php-pecl-apcu-devel php-pecl-zip
-(
-    # yum install -y rh-php72 rh-php72-php rh-php72-php-gd rh-php72-php-mbstring \
-rh-php72-php-intl rh-php72-php-pecl-apcu rh-php72-php-mysqlnd rh-php72-php-pecl-redis \
-rh-php72-php-opcache rh-php72-php-imagick
-)
+# yum -y install vim unzip wget httpd bash-completion policycoreutils-python mlocate bzip2
 # wget https://download.nextcloud.com/server/releases/nextcloud-17.0.2.zip
 ```
 
