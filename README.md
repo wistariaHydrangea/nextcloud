@@ -28,8 +28,6 @@
 | PHP | 7.3.13 |
 | MariaDB | 10.4.11 |
 
-![image](nextcloud1-1.svg)
-
 ## 3.Nextcloud construcyion
 
 The procedure up to the construction of "Nextcloud" is shown.
