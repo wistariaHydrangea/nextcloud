@@ -1,0 +1,13 @@
+---
+- name: Install Nextcloud
+  hosts: mariadb
+  vars:
+    ansible_become: yes
+    ansible_become_method: sudo
+  roles:
+    - change_hostname
+    - install_packages
+    - firewall_service
+    - setup_root
+    - create_database
+    - create_dbuser

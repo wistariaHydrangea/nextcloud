@@ -1,0 +1,6 @@
+- name: Create database
+  mysql_db:
+    name: nextcloud
+    state: present
+    encoding: utf8
+    collation: utf8_bin

@@ -1,0 +1,9 @@
+- name: Create DBuser with GRANT option
+  mysql_user:
+    login_user: root
+    login_password: root
+    name: nextcloud
+    host: "{{ ansible_host }}"
+    password: password
+    state: present
+    priv: 'nextcloud.*:ALL,GRANT'

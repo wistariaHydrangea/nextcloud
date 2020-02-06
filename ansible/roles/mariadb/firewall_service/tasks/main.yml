@@ -1,0 +1,8 @@
+- name: firewall release mariadb
+  firewalld:
+    service: mysql
+    permanent: yes
+    state: enabled
+
+- name: firewalld reload
+  command: firewall-cmd --reload

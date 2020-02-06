@@ -1,0 +1,6 @@
+- name: root account set
+  mysql_user:
+    name: root
+    host: localhost
+    password: root
+    state: present
