@@ -170,9 +170,8 @@ MariaDB [(none)]> FLUSH PRIVILEGES;
 Install the necessary packages for building Nextcloud.
 
 ```terminal
-# yum -y remove php-*
+# yum -y update
 # yum -y install epel-release yum-utils
-# rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 # yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 # yum -y install --enablerepo=remi,remi-php72 php php-gd php-json php-mysql php-curl php-mbstring
 # yum -y install --enablerepo=remi,remi-php72 php-intl php-mcrypt php-imagick php-xml php-zip php-process php-apcu
@@ -200,17 +199,6 @@ Release for port of httpd and Mariadb.
 ```termial
 # sudo setenforce 0
 # sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/nextcloud/data(/.*)?'
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/nextcloud/config(/.*)?'
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/nextcloud/apps(/.*)?'
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/nextcloud/.htaccess'
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/nextcloud/.user.ini'
-# semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/nextcloud/3rdparty/aws/aws-sdk-php/src/data/logs(/.*)?'
-
-# restorecon -R '/var/www/html/nextcloud/'
-
-# setsebool -P httpd_can_network_connect on
 ```
 
 ### 3-4.Prepare for DB
@@ -249,7 +237,7 @@ To start MariaDB.
 ```
 
 ```terminal
-# mysql -u nextcloud -p -h (Nextcloud server IPaddress)
+# mysql -u nextcloud -p -h (MariaDB server IPaddress)
 password:  <-- CREATE USER の際に設定したパスワード
 ```
 
