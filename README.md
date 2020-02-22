@@ -156,6 +156,16 @@ DBpassword: password
 ```terminal
 MariaDB [(none)]> CREATE DATABASE nextcloud;
 MariaDB [(none)]> CREATE USER 'nextcloud'@'Nextclooud server ip address' IDENTIFIED BY 'password';
+MariaDB [(none)]> SELECT Host, User FROM mysql.user;
++---------------+-----------+
+| Host          | User      |
++---------------+-----------+
+| 172.16.1.20   | nextcloud |
+| localhost     |           |
+| localhost     | mysql     |
+| localhost     | root      |
+| mariadb-01    |           |
++---------------+-----------+
 ```
 
 Gives access to the database.
