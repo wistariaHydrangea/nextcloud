@@ -4,16 +4,16 @@
 
 1. What is tha Nextcloud
 2. Diagram
-3. Nextcloud construcyion  
-    3-1. Install of MariaDB (DB server side)  
-    3-2. Prepare for DB (DB server side)  
-    3-3. Install of Nextcloud, httpd and PHP and DB (Nextcloud server side)  
-    3-4. Prepare for DB (Nextcloud server side)  
-    3-5. Prepare of Nextcloud server (Nextcloud server side)  
-    3-6. Setup of Nextcloud  
+3. Nextcloud construcyion
+    3-1. Install of MariaDB (DB server side)
+    3-2. Prepare for DB
+    3-3. Install of Nextcloud, httpd and PHP and DB (Nextcloud server side)
+    3-4. Prepare for DB
+    3-5. Prepare of Nextcloud server
+    3-6. Setup of Nextcloud
 4. Trouble management
 
-## 1.What is tha Nextcloud
+## 1.What is the Nextcloud
 
 "Nextcloud" は使いやすく安全性が高いように設計された、自己ホスト型のオープンソースのファイル同期および共有ソリューションです。
 写真や動画、書類などのデータを保存することができ、メンバーとの共有することもできます。DropBoxとほぼ同じ機能が備わっています。
@@ -27,6 +27,8 @@
 | httpd | Apache/2.4.6 |
 | PHP | 7.3.13 |
 | MariaDB | 10.4.11 |
+
+![image](nextcloud1-1.svg)
 
 ## 3.Nextcloud construcyion
 
@@ -44,6 +46,15 @@ baseurl = http://yum.mariadb.org/10.4/centos7-amd64
 gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 EOF
+```
+
+(/etc/my.cnf.d/server.cnf)
+
+```conf
+
+[mysqld]
+character-set-server = utf8  <--追加
+
 ```
 
 Install necessary packages MariaDB.
@@ -67,7 +78,61 @@ To start MariaDB.
 # systemctl start mariadb
 ```
 
-### 3-2.Prepare for DB
+## 3-2.Construction NFS environment for storing data
+
+### NFS Server side
+
+Installing to client side neccessary packages of nfs.
+
+```terminal
+# yum -y install nfs-utils
+```
+
+(/etc/export)
+
+```txt
+/mnt/nextcloud/data (NFS client IPaddress)(rw)
+```
+
+Start nfs-server & rpcbind
+
+```terminal
+# systemctl enable nfs-server,rpcbind
+# systemctl start nfs-server.rpcbind
+```
+
+### NFS cilent side
+
+Installing to client side neccessary packages of nfs.
+
+```terminal
+# yum -y install nfs-utils
+```
+
+Start nfs-server & rpcbind
+
+```terminal
+# systemctl enable nfs-server,rpcbind
+# systemctl start nfs-server.rpcbind
+```
+
+Mount to client side.
+
+```teminal
+# mount -t nfs (nfs server 'IPaddress' or 'hostname'):/mnt/nextcloud/data /mnt/nextcloud/data
+```
+
+(/etc/fstab)
+
+```terminal
+/dev/mapper/centos-root /                       xfs     defaults        1 1
+UUID=a18716b4-cd67-4aec-af91-51be7bce2a0b /boot xfs     defaults        1 2
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+
+(nfs server 'IPaddress' or 'hostname'):/mnt/nextcloud/data /mnt/nextcloud/data                   nfs     defaults        0 0
+```
+
+### 3-3.Prepare for DB
 
 Setup for password of "root".
 
@@ -156,37 +221,30 @@ DBpassword: password
 ```terminal
 MariaDB [(none)]> CREATE DATABASE nextcloud;
 MariaDB [(none)]> CREATE USER 'nextcloud'@'Nextclooud server ip address' IDENTIFIED BY 'password';
-MariaDB [(none)]> SELECT Host, User FROM mysql.user;
-+---------------+-----------+
-| Host          | User      |
-+---------------+-----------+
-| 172.16.1.20   | nextcloud |
-| localhost     |           |
-| localhost     | mysql     |
-| localhost     | root      |
-| mariadb-01    |           |
-+---------------+-----------+
 ```
 
 Gives access to the database.
 
 ```terminal
-MariaDB [(none)]> GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'Nextclooud server ip address' with grant option;
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON *.* TO 'nextcloud'@'Nextcloud server ip address' with grant option;
 MariaDB [(none)]> FLUSH PRIVILEGES;
 ```
 
-### 3-3.Install of httpd and PHP and DB (Nextcloud server side)
+### 3-4.Install of httpd and PHP and DB (Nextcloud server side)
 
 Install the necessary packages for building Nextcloud.
 
 ```terminal
-# yum -y update
+# yum -y remove php-*
 # yum -y install epel-release yum-utils
+# rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 # yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
 # yum -y install --enablerepo=remi,remi-php72 php php-gd php-json php-mysql php-curl php-mbstring
-# yum -y install --enablerepo=remi,remi-php72 php-intl php-mcrypt php-imagick php-xml php-zip php-process php-apcu
-# yum -y install vim unzip wget httpd bash-completion policycoreutils-python mlocate bzip2
-# wget https://download.nextcloud.com/server/releases/nextcloud-17.0.2.zip
+# yum -y install --enablerepo=remi,remi-php72 php-intl php-mcrypt php-imagick php-xml php-zip php-process php-apcu php-opcache
+# yum -y install vim unzip wget httpd mod_ssl bash-completion policycoreutils-python mlocate bzip2 memcached \
+php-cli php-mysqlnd php-devel php-pear php-bcmath php-pdo php-pecl-apcu php-pecl-zip
+
+# wget https://download.nextcloud.com/server/releases/nextcloud-18.0.4.zip
 ```
 
 ```terminal
@@ -209,9 +267,68 @@ Release for port of httpd and Mariadb.
 ```termial
 # sudo setenforce 0
 # sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+# restorecon -R '/var/www/html/nextcloud/'
+
+# setsebool -P httpd_can_network_connect on
 ```
 
-### 3-4.Prepare for DB
+"PHPのメモリ制限は推奨値512MBを下回ります。"警告が出てしまうので、以下のように修正
+(/etc/php.ini)
+
+```ini
+404 ; Maximum amount of memory a script may consume (128MB)
+405 ; http://php.net/memory-limit
+406 ; memory_limit = 128M
+407 memory_limit = 512M
+```
+
+timezone は日本の場合は"Asia/Toyko"に設定
+(/etc/php.ini)
+
+```ini
+
+~省略~
+
+901 [Date]
+902 ; Defines the default timezone used by the date functions
+903 ; http://php.net/date.timezone
+904 date.timezone = "Asia/Tokyo"  <--"Asia/Tokyo"に設定
+
+~省略~
+
+```
+
+メモリキャッシュを設定するためにmemcacheを記載します。
+"$CONFIG = array ()" 内の一番下に追加します。
+(/var/www/html/nextcloud/config/config.php)
+
+```ini
+<?php
+$CONFIG = array (
+    
+    ~省略~
+    
+    'memcache.local' => '\OC\Memcache\APCu',
+)
+```
+
+PHP OPcache の設定
+(/etc/php.d/10-opcache.ini)
+
+```ini
+
+~上記省略~
+
+opcache.enable=1
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=8
+opcache.max_accelerated_files=10000
+opcache.save_comments=1
+opcache.revalidate_freq=1
+```
+
+### 3-5.Prepare for DB
 
 Prepare a repository.
 
@@ -247,16 +364,16 @@ To start MariaDB.
 ```
 
 ```terminal
-# mysql -u nextcloud -p -h (MariaDB server IPaddress)
+# mysql -u nextcloud -p -h (Nextcloud server IPaddress)
 password:  <-- CREATE USER の際に設定したパスワード
 ```
 
-### 3-5.Prepare of Nextcloud server
+### 3-6.Prepare of Nextcloud server
 
 Install of "Nextcloud".
 
 ```terminal
-# unzip nextcloud-17.0.2.zip
+# unzip nextcloud-18.0.4.zip
 ```
 
 Copy to /var/www/html/ deployed nextcloud.
@@ -275,41 +392,35 @@ Change the owner information so that you can read and write in the entire Nextcl
 
 ```terminal
 # chown -R apache:apache /var/www/html/nextcloud
+# chown -R apache:apache /mnt/nextcloud/data
 ```
 
-Start httpd.
+(/etc/nginx/conf.d/default.conf)
+
+```conf
+location = /.well-known/carddav {
+    return 301 $scheme://$host:$server_port/nextcloud/remote.php/dav;
+}
+
+location = /.well-known/caldav {
+    return 301 $scheme://$host:$server_port/nextcloud/remote.php/dav;
+}
+
+location /.well-known/acme-challenge {
+
+}
+```
+
+Start httpd service
 
 ```terminal
+# systemctl enable httpd
 # systemctl start httpd
 ```
 
-## 3-6.Store to NFS
+### 3-7.Setup of Nextcloud
 
-Installing to client side neccessary packages of nfs.
-
-```terminal
-# yum -y install nfs-utils
-```
-
-Mount to client side.
-
-```teminal
-# mount -t nfs (nfs server 'IP address' or 'hostname'):/mnt/nextcloud/data /mnt/nextcloud/data
-```
-
-(/etc/fstab)
-
-```terminal
-/dev/mapper/centos-root /                       xfs     defaults        1 1
-UUID=a18716b4-cd67-4aec-af91-51be7bce2a0b /boot xfs     defaults        1 2
-/dev/mapper/centos-swap swap                    swap    defaults        0 0
-
-(nfs server 'IP address' or 'hostname'):/mnt/nextcloud/data /mnt/nextcloud/data                   nfs     defaults        0 0
-```
-
-### 3-6.Setup of Nextcloud
-
-Access to server ip address of Nextcloud.
+Access to "(server ip address)/nextcloud" of Nextcloud.
 
 ![image-01](images/nextcloud-images01.png)
 
@@ -320,7 +431,10 @@ Access to server ip address of Nextcloud.
 1. [https://docs.nextcloud.com/server/17/admin_manual/installation/source_installation.html#example-installation-on-centos-7-server](https://docs.nextcloud.com/server/17/admin_manual/installation/source_installation.html#example-installation-on-centos-7-server)
 2. [https://nextcloud.com/changelog/#latest17](https://nextcloud.com/changelog/#latest17)
 3. [https://computingforgeeks.com/install-nextcloud-on-centos-with-php-apache-mariadb/](https://computingforgeeks.com/install-nextcloud-on-centos-with-php-apache-mariadb/)
-4. [https://qiita.com/S_Katz/items/9402ae8e104b8ac5702b](https://qiita.com/S_Katz/items/9402ae8e104b8ac5702b)
-5. [https://www.marksei.com/how-to-install-nextcloud-17-server-on-centos-7/](https://www.marksei.com/how-to-install-nextcloud-17-server-on-centos-7/)
-6. [https://www.gwtcenter.com/owncloud-installation](https://www.gwtcenter.com/owncloud-installation)
-7. [https://saka24.blue/index.php/2017/10/12/nextcloud_install/](https://saka24.blue/index.php/2017/10/12/nextcloud_install/)
+4. [https://secure.nanako-net.info/redmine/projects/know-how/wiki/Nextcloud12](https://secure.nanako-net.info/redmine/projects/know-how/wiki/Nextcloud12)
+5. [https://qiita.com/S_Katz/items/9402ae8e104b8ac5702b](https://qiita.com/S_Katz/items/9402ae8e104b8ac5702b)
+6. [https://help.nextcloud.com/t/nginx-reverse-proxy-what-to-write-in-nextclouds-config-php/9149/13](https://help.nextcloud.com/t/nginx-reverse-proxy-what-to-write-in-nextclouds-config-php/9149/13)
+7. [https://www.marksei.com/how-to-install-nextcloud-17-server-on-centos-7/](https://www.marksei.com/how-to-install-nextcloud-17-server-on-centos-7/)
+8. [https://www.gwtcenter.com/owncloud-installation](https://www.gwtcenter.com/owncloud-installation)
+9. [https://saka24.blue/index.php/2017/10/12/nextcloud_install/](https://saka24.blue/index.php/2017/10/12/nextcloud_install/)
+10. [https://doc.owncloud.org/server/8.1/admin_manual/configuration_server/config_sample_php_parameters.html](https://doc.owncloud.org/server/8.1/admin_manual/configuration_server/config_sample_php_parameters.html)

@@ -1,5 +1,11 @@
 # Manages Nextcloud with Ansible
 
+## Chapter structure
+
+1. Diagram
+2. Install packages
+3. Authentication format
+
 ## 1.Diagram
 
 | 項目 | 詳細 |
@@ -22,11 +28,25 @@ ansible 2.9.3
   python version = 2.7.5 (default, Aug  7 2019, 00:51:29) [GCC 4.8.5 20150623 (Red Hat 4.8.5-39)]
 ```
 
-## Set ssh config
+## Authentication format
 
 Case1: SSH Authentication
 
-(./ssh/config)
+Create Key
+
+```terminal
+# mkdir ~/.ssh
+# cd ~/.ssh
+# ~./ssh $ ssh-keygen -t rsa -b 4096
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): mariadb-server <--任意の文字を入力
+Enter passphrase (empty for no passphrase): <--任意の文字を入力
+Enter same passphrase again: <--もう一度入力
+Your identification has been saved in mariadb-server.
+Your public key has been saved in mariadb-server.pub.
+```
+
+(~/.ssh/config)
 
 ```txt
 Host nextcloud-server
@@ -56,6 +76,18 @@ Case2: Password Authentication
 
 ```terminal
 # ansible-playbook -i hosts (.yml file) --ask-pass
+```
+
+(/etc/ansible/ansible.cnf)
+
+```terminal
+
+~省略~
+
+_pass=True
+
+~省略~
+
 ```
 
 ## 参考資料
